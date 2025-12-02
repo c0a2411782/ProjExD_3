@@ -19,7 +19,27 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+class Score:
+    """
+    打ち落とした爆弾の数を表示するスコアクラス
+    """
+    def __init__(self):
+        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.color = (0, 0, 255)
+        self.value = 0
+        self.img = self.font.render(f"スコア: {self.value}", 0, self.color)
+        self.rct = self.img.get_rect()
+        self.rct.center = 100, HEIGHT - 50
+
+    def update(self, screen: pg.Surface):
+        self.img = self.font.render(f"スコア: {self.value}", 0, self.color)
+        screen.blit(self.img, self.rct)
+
+
 class Bird:
+    """
+    こうかとんの移動及び方向画像に関するクラス
+    """
     delta = {
         pg.K_UP: (0, -5),
         pg.K_DOWN: (0, +5),
@@ -88,6 +108,9 @@ class Beam:
 
 
 class Bomb:
+    """
+    爆弾に関するクラス
+    """
     def __init__(self, color: tuple[int, int, int], rad: int):
         self.img = pg.Surface((2*rad, 2*rad))
         pg.draw.circle(self.img, color, (rad, rad), rad)
@@ -117,6 +140,8 @@ def main():
     bird = Bird((300, 200))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     beam = None
+    
+    score = Score()
 
     clock = pg.time.Clock()
     tmr = 0
@@ -144,6 +169,7 @@ def main():
                 beam = None
                 bombs[b] = None
                 bird.change_img(6, screen)
+                score.value += 1
                 pg.display.update()
 
         # 消滅した爆弾を除去
@@ -162,6 +188,8 @@ def main():
         # --- 複数爆弾更新 ---
         for bomb in bombs:
             bomb.update(screen)
+            
+        score.update(screen)
 
         pg.display.update()
         tmr += 1
