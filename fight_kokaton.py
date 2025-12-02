@@ -208,6 +208,7 @@ def main():
                         bird.change_img(6, screen)
                         score.value += 1
                         pg.display.update()
+                        break
 
         # 消滅したオブジェクトを除去
         bombs = [bomb for bomb in bombs if bomb is not None]
