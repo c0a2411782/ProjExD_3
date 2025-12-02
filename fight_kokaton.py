@@ -199,12 +199,12 @@ def main():
                 return
 
         # --- ビーム vs 爆弾 ---
-        for i, bomb in enumerate(bombs):
-            for j, beam in enumerate(beams):
+        for bo, bomb in enumerate(bombs):
+            for be, beam in enumerate(beams):
                 if bomb is not None and beam is not None:
                     if beam.rct.colliderect(bomb.rct):
-                        bombs[i] = None
-                        beams[j] = None
+                        bombs[bo] = None
+                        beams[be] = None
                         bird.change_img(6, screen)
                         score.value += 1
                         pg.display.update()
