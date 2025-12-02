@@ -19,7 +19,6 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
-# ★演習1：スコアクラスを追加
 class Score:
     """
     打ち落とした爆弾の数を表示するスコアクラス
@@ -140,9 +139,9 @@ def main():
 
     bird = Bird((300, 200))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
-    beam = None
-    
-    score = Score()  # ★スコアインスタンス生成
+    beams = []  # ビーム格納用リスト
+
+    score = Score()
 
     clock = pg.time.Clock()
     tmr = 0
@@ -152,7 +151,7 @@ def main():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                beam = Beam(bird)
+                beams.append(Beam(bird))  # ビームをリストに追加
 
         screen.blit(bg_img, [0, 0])
 
@@ -161,43 +160,47 @@ def main():
             if bird.rct.colliderect(bomb.rct):
                 bird.change_img(8, screen)
                 
-                # ★ここにゲームオーバーブランチのコードをそのまま持ってきました
+                # Game Over表示
                 fonto = pg.font.Font(None, 80)
                 txt = fonto.render("Game Over", True, (255, 0, 0))
                 screen.blit(txt, [WIDTH//2 - 150, HEIGHT//2])
                 
-                score.update(screen) # スコアも表示しておく
+                score.update(screen)
                 pg.display.update()
                 time.sleep(1)
                 return
 
         # --- ビーム vs 爆弾 ---
-        for b, bomb in enumerate(bombs):
-            if beam is not None and beam.rct.colliderect(bomb.rct):
-                beam = None
-                bombs[b] = None
-                bird.change_img(6, screen)
-                score.value += 1  # ★スコア加算
-                pg.display.update()
+        for i, bomb in enumerate(bombs):
+            for j, beam in enumerate(beams):
+                if bomb is not None and beam is not None:
+                    if beam.rct.colliderect(bomb.rct):
+                        bombs[i] = None
+                        beams[j] = None
+                        bird.change_img(6, screen)
+                        score.value += 1
+                        pg.display.update()
 
-        # 消滅した爆弾を除去
+        # 消滅したオブジェクトを除去
         bombs = [bomb for bomb in bombs if bomb is not None]
+        beams = [beam for beam in beams if beam is not None]
 
         # --- こうかとん更新 ---
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
 
         # --- ビーム更新 ---
-        if beam is not None:
+        for beam in beams:
             beam.update(screen)
-            if check_bound(beam.rct) != (True, True):
-                beam = None
+        
+        # 画面外のビームを削除
+        beams = [beam for beam in beams if check_bound(beam.rct) == (True, True)]
 
         # --- 複数爆弾更新 ---
         for bomb in bombs:
             bomb.update(screen)
             
-        score.update(screen) # ★スコア表示
+        score.update(screen)
 
         pg.display.update()
         tmr += 1
