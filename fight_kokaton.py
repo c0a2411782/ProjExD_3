@@ -19,12 +19,13 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+# ★演習1：スコアクラスを追加
 class Score:
     """
     打ち落とした爆弾の数を表示するスコアクラス
     """
     def __init__(self):
-        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.font = pg.font.SysFont("msgothic", 30)
         self.color = (0, 0, 255)
         self.value = 0
         self.img = self.font.render(f"スコア: {self.value}", 0, self.color)
@@ -141,7 +142,7 @@ def main():
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     beam = None
     
-    score = Score()
+    score = Score()  # ★スコアインスタンス生成
 
     clock = pg.time.Clock()
     tmr = 0
@@ -159,6 +160,13 @@ def main():
         for b, bomb in enumerate(bombs):
             if bird.rct.colliderect(bomb.rct):
                 bird.change_img(8, screen)
+                
+                # ★ここにゲームオーバーブランチのコードをそのまま持ってきました
+                fonto = pg.font.Font(None, 80)
+                txt = fonto.render("Game Over", True, (255, 0, 0))
+                screen.blit(txt, [WIDTH//2 - 150, HEIGHT//2])
+                
+                score.update(screen) # スコアも表示しておく
                 pg.display.update()
                 time.sleep(1)
                 return
@@ -169,7 +177,7 @@ def main():
                 beam = None
                 bombs[b] = None
                 bird.change_img(6, screen)
-                score.value += 1
+                score.value += 1  # ★スコア加算
                 pg.display.update()
 
         # 消滅した爆弾を除去
@@ -189,7 +197,7 @@ def main():
         for bomb in bombs:
             bomb.update(screen)
             
-        score.update(screen)
+        score.update(screen) # ★スコア表示
 
         pg.display.update()
         tmr += 1
